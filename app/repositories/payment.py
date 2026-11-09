@@ -13,6 +13,11 @@ class PaymentRepository:
     async def get_by_id(self, payment_id: UUID) -> Payment | None:
         return await self.session.scalar(select(Payment).where(Payment.id == payment_id))
 
+    async def get_by_id_for_update(self, payment_id: UUID) -> Payment | None:
+        return await self.session.scalar(
+            select(Payment).where(Payment.id == payment_id).with_for_update()
+        )
+
     async def get_by_idempotency_key(self, idempotency_key: str) -> Payment | None:
         return await self.session.scalar(
             select(Payment).where(Payment.idempotency_key == idempotency_key)

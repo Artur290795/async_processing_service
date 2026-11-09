@@ -4,6 +4,9 @@ from app.broker.topology import PAYMENTS_EXCHANGE, PAYMENTS_QUEUE, broker, decla
 from app.db.session import SessionLocal
 from app.services.outbox import OutboxPublisher
 
+# Import registers the FastStream subscriber on the shared broker.
+import app.broker.handlers  # noqa: F401, E402
+
 
 async def publish_payment_event(payload: dict[str, object]) -> None:
     await broker.publish(
