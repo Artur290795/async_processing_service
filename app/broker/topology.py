@@ -25,7 +25,12 @@ broker = RabbitBroker(get_settings().rabbitmq_url)
 
 async def declare_topology() -> None:
     """Declare durable exchanges and queues before publishing or consuming."""
-    await broker.declare_exchange(PAYMENTS_EXCHANGE)
-    await broker.declare_exchange(DEAD_LETTER_EXCHANGE)
-    await broker.declare_queue(PAYMENTS_QUEUE, exchange=PAYMENTS_EXCHANGE)
-    await broker.declare_queue(DEAD_LETTER_QUEUE, exchange=DEAD_LETTER_EXCHANGE)
+    payments_exchange = await broker.declare_exchange(PAYMENTS_EXCHANGE)
+    dead_letter_exchange = await broker.declare_exchange(DEAD_LETTER_EXCHANGE)
+    payments_queue = await broker.declare_queue(PAYMENTS_QUEUE)
+    dead_letter_queue = await broker.declare_queue(DEAD_LETTER_QUEUE)
+    await payments_queue.bind(payments_exchange, routing_key=PAYMENTS_QUEUE.routing_key)
+    await dead_letter_queue.bind(
+        dead_letter_exchange,
+        routing_key=DEAD_LETTER_QUEUE.routing_key,
+    )
